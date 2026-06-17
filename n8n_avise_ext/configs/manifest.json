@@ -1,0 +1,20 @@
+{
+  "connector_dir": "avise_custom/configs/connector",
+  "set_dir": "avise_custom/configs/SET",
+  "workflows": [
+    "wf_03",
+    "wf_08",
+    "wf_09",
+    "wf_01",
+    "wf_05",
+    "wf_07",
+    "wf_10",
+    "wf_04",
+    "wf_06",
+    "wf_02"
+  ],
+  "variants": [
+    "baseline",
+    "guardrail"
+  ]
+}

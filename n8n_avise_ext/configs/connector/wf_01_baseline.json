@@ -1,0 +1,13 @@
+{
+  "target_model": {
+    "connector": "n8n-webhook-lm",
+    "type": "language_model",
+    "name": "wf_01 (baseline)",
+    "webhook_url": "http://localhost:5678/webhook/wf-01-baseline",
+    "method": "POST",
+    "input_field": "prompt",
+    "response_field": "output",
+    "tool_calls_field": "tool_calls",
+    "timeout": 120
+  }
+}
