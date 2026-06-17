@@ -36,3 +36,6 @@ CLAUDE.md
 # Http cookie files
 cookiejar.txt
 n8n_cookies.txt
+
+# Pycache
+__pycache__/
