@@ -11,6 +11,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
+import avise.utils
 from avise.pipelines.languagemodel import (
     BaseSETPipeline,
     LanguageModelSETCase,
@@ -318,8 +319,9 @@ class N8nWorkflowTest(BaseSETPipeline):
         report_format: ReportFormat = ReportFormat.JSON,
         generate_ai_summary: bool = True,
     ) -> ReportData:
-        """Phase 4: Generate the final report."""
-        logger.info(f"Generating {report_format.value.upper()} report")
+        """Phase 4: Generate the final report (structured run output)."""
+
+        logger.info(f"Generating structured AVISE report")
 
         summary_stats = self.calculate_passrates(results)
 
@@ -344,13 +346,11 @@ class N8nWorkflowTest(BaseSETPipeline):
             configuration={
                 "connector_config": (
                     Path(self.connector_config_path).name
-                    if self.connector_config_path
-                    else ""
+                    if self.connector_config_path else ""
                 ),
                 "set_config": (
                     Path(self.set_config_path).name
-                    if self.set_config_path
-                    else ""
+                    if self.set_config_path else ""
                 ),
                 "target_model": self.target_model_name,
                 "evaluation_model": self.evaluation_model_name or "",
@@ -358,20 +358,41 @@ class N8nWorkflowTest(BaseSETPipeline):
             ai_summary=ai_summary,
         )
 
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
+        # ─────────────────────────────────────────────
+        # Create structured run directory
+        # ─────────────────────────────────────────────
+        base_dir = Path(output_path)
+        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_dir = base_dir / run_id
+
+        run_dir.mkdir(parents=True, exist_ok=True)
+
+        json_path = run_dir / "report.json"
+        html_path = run_dir / "report.html"
+        md_path = run_dir / "report.md"
 
         try:
-            if report_format == ReportFormat.HTML:
-                HTMLReporter().write(report_data, output_file)
-                json_path = Path(output_path.replace(".html", ".json"))
-                JSONReporter().write(report_data, json_path)
-            elif report_format == ReportFormat.JSON:
-                JSONReporter().write(report_data, output_file)
-            elif report_format == ReportFormat.MARKDOWN:
-                MarkdownReporter().write(report_data, output_file)
-            logger.info(f"Report written to {output_path}")
+            # ─────────────────────────────
+            # Always write JSON
+            # ─────────────────────────────
+            JSONReporter().write(report_data, json_path)
+
+            # ─────────────────────────────
+            # Always write HTML
+            # ─────────────────────────────
+            HTMLReporter().write(report_data, html_path)
+
+            # ─────────────────────────────
+            # Optional Markdown (safe to always generate)
+            # ─────────────────────────────
+            MarkdownReporter().write(report_data, md_path)
+
+            logger.info(f"Report written to:")
+            logger.info(f"  JSON: {json_path}")
+            logger.info(f"  HTML: {html_path}")
+            logger.info(f"  MD:   {md_path}")
+
         except Exception as e:
-            logger.error(f"Error writing report: {e}")
+            logger.error(f"Error writing structured report: {e}")
 
         return report_data

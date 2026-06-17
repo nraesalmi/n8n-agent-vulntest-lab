@@ -99,7 +99,10 @@ class N8nWebhookLMConnector:
         except ValueError:
             result = {"output": response.text, "tool_calls": []}
 
-        if not isinstance(result, dict):
+        if isinstance(result, list):
+            result = result[0] if result else {}
+
+        elif not isinstance(result, dict):
             result = {"output": str(result), "tool_calls": []}
 
         agent_output = result.get(self.response_field, result.get("output", ""))

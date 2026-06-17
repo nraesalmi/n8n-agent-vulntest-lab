@@ -39,3 +39,7 @@ n8n_cookies.txt
 
 # Pycache
 __pycache__/
+
+# AVISE evaluation results
+
+avise_reports/

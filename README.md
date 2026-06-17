@@ -125,7 +125,23 @@ LLM_MODEL=opencode/deepseek-v4-flash-free
 
 **Important:** Ensure `N8N_ENCRYPTION_KEY` is at least 32 characters. n8n will refuse to start with a weak encryption key when using PostgreSQL.
 
-### Step 2: Start Services
+### Step 2: Create Virtual Environment + Install Dependencies
+ 
+```bash
+# Create virtual environment
+python -m venv .venv
+
+# Activate (Windows PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Activate (macOS/Linux)
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Step 3: Start Services
 
 ```bash
 docker compose up -d
@@ -133,16 +149,22 @@ docker compose up -d
 
 This starts n8n (port 5678), PostgreSQL (port 5432), Ollama (port 11434), and mockapi (port 3000).
 
-### Step 3: (Optional) Pull Ollama Model
+### Step 4: (Optional) Pull Ollama Model
 
 Only needed if using Ollama as your LLM backend (air-gapped mode):
 
 ```bash
 ./scripts/pull-model.sh        # pulls the model from .env OLLAMA_MODEL
-./scripts/pull-model.sh llama3  # or specify a different model
+./scripts/pull-model.sh llama3.1  # or specify a different model
 ```
 
-### Step 4: Import Credentials and Workflows
+Or call the container itself to pull the model with:
+
+```bash
+docker exec -it n8n-ollama ollama pull llama3.1
+```
+
+### Step 5: Import Credentials and Workflows
 
 Run the appropriate setup script for your operating system:
 
@@ -158,13 +180,19 @@ Run the appropriate setup script for your operating system:
 .\scripts\setup.ps1
 ```
 
+To bypass Powershell script execution policy temporarily, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+```
+
 The setup script will:
 - Wait for n8n to be healthy
 - Generate credential JSON files from `.env` and import them into n8n
 - Import all workflow JSONs from `baseline/`, `basic_guardrail/`, and `custom_guardrail/` subdirectories
 - Delete any stale workflows from previous imports
 
-### Step 5: Start Supporting Servers (for selected experiments)
+### Step 6: Start Supporting Servers (for selected experiments)
 
 For indirect injection and exfiltration experiments, start these local servers:
 
@@ -178,14 +206,14 @@ python test-servers/attacker_listener.py
 
 Workflows wf_02, wf_03, wf_05, and wf_06 rely on one or both of these servers being available.
 
-### Step 6: Activate Workflows in n8n
+### Step 7: Activate Workflows in n8n
 
 All workflows import in **inactive** state. Open http://localhost:5678 and toggle each workflow to **Active** — this registers the webhook endpoints with n8n.
 
-### Step 7: Run Security Tests via AVISE
+### Step 8: Run Security Tests via AVISE
 
 ```bash
-# Activate Python venv and run tests for a single workflow
+# Use the Python venv to run tests for a single workflow
 source .venv/bin/activate
 python scripts/run_avise.py --wf wf_01 --variant baseline
 
