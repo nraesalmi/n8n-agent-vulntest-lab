@@ -1,8 +1,8 @@
 # AI Workflow Security Research Lab
 
-**Security of low-code AI agent workflow platforms under prompt-injection and execution graph manipulation**
+**Security of low-code AI agent workflow platforms under prompt-injection and execution-graph manipulation**
 
-A controlled experimental framework for studying how prompt-injection-class attacks propagate through node-based AI workflow systems (n8n), where LLM outputs are compiled into executable workflow graphs with external side effects. Contains **20 attack workflows** (10 scenarios x baseline/guardrail variants) and **1 reusable security sub-workflow scaffold**, targeting 7 OWASP LLM categories across escalating attack complexity.
+A controlled experimental framework for studying how prompt-injection-class attacks and platform-specific execution vulnerabilities propagate through node-based AI workflow systems (n8n), where LLM outputs are compiled into executable workflow graphs with external side effects. Contains **10 attack scenarios** (baseline / basic-guardrail / custom-guardrail variants) and **1 reusable security sub-workflow scaffold**, mapped against both the OWASP Top 10 for LLM Applications and the OWASP Top 10 for Agentic Applications.
 
 ---
 
@@ -12,24 +12,41 @@ A controlled experimental framework for studying how prompt-injection-class atta
 
 Low-code automation systems such as n8n expose a fundamentally different attack surface compared to conversational chatbots. LLM outputs in these systems are not merely rendered as text — they are compiled into executable workflow graphs with real external side effects: database writes, HTTP calls, tool invocations, and control-flow decisions.
 
-While prompt injection is well-studied in chat-based systems, there is limited understanding of how these attacks generalise when the model output becomes a **control plane for tool execution, branching logic, and stateful automation** across multiple execution contexts.
+While prompt injection is well-studied in chat-based, code-first agent frameworks (LangChain, AutoGPT), that literature assumes an orchestration layer the researcher can inspect and instrument directly as code, with tool calls realized as typed function arguments. n8n's AI Agent node wraps the same LangChain tool-calling interface, but its surrounding execution environment is a visually composed graph of independently configured nodes, each with its own credential scope, where data — including values the LLM populates dynamically via `$fromAI()` — is routed through a separate, server-side expression-evaluation language before it reaches a tool's executable parameters. Whether the attack classes already documented for code-first agents manifest identically here, or are joined by failure modes specific to this node-graph execution model, has not been systematically examined.
 
 ### Thesis
 
-Prompt-injection-class attacks can propagate through workflow-based AI systems where trust boundaries are implicit and often span multiple nodes, credentials, and external integrations.
+Prompt-injection-class attacks can propagate through workflow-based AI systems where trust boundaries are implicit and often span multiple nodes, credentials, and external integrations. Beyond this, n8n's own execution model — its expression evaluator, its per-node credential scoping, and its AI-populated tool parameters — introduces failure modes that exist independently of the LLM's reasoning being manipulated at all, and that generic agent-security benchmarks do not model.
 
-| Attack Class | Description | OWASP LLM |
+### Scope: Two Classes of Failure
+
+This lab deliberately separates two classes of vulnerability, since conflating them obscures which mitigations actually apply to which failure:
+
+| Class | What's exercised | Example |
 |---|---|---|
-| **Direct Prompt Injection** | Adversarial input embedded in user message overrides system instructions | LLM01 |
-| **Indirect Prompt Injection** | Payloads hidden in upstream data (web pages, databases, email) activate when the LLM processes them | LLM01 |
-| **Insecure Output Handling** | LLM output containing code or commands is passed directly to an executor (shell, eval) | LLM02 |
-| **Tool / Agency Hijacking** | LLM output induces unintended tool calls — database mutations, HTTP requests, credential exfiltration | LLM06 |
-| **Memory Poisoning** | Injected data persisted in LLM memory (buffer window, vector store) and re-activated across turns | LLM04/LLM08 |
-| **System Prompt Extraction** | Crafted inputs that cause the LLM to leak its own system prompt or instructions | LLM07 |
-| **Agent Looping** | Recursive self-triggering via output channels leading to resource exhaustion | LLM10 |
-| **Multi-Hop Trust Escalation** | A chain of agents or tool calls where each step escalates privileges based on prior LLM output | Composite |
+| **Reasoning-layer** | The model is manipulated via crafted input into making a bad decision | Injected web content convinces the agent to leak a credential in its response |
+| **Platform-layer** | A deterministic mechanism in n8n's execution engine misfires, independent of what the model decided | A stored form field beginning with `=` gets evaluated as an expression when read back downstream |
 
-A central research question is whether traditional LLM safety mitigations (system prompts, output filtering, basic guardrails) remain effective once outputs are interpreted as **structured execution instructions** rather than natural language responses — particularly when injected data crosses trust boundaries between nodes, workflows, and execution contexts.
+Most published IPI benchmarks (InjecAgent, AgentDojo, Agent Security Bench) only test the first class, because code-first agent frameworks don't have an equivalent platform layer to test. Three of the ten scenarios below (wf_03, wf_05, wf_09) are constructed specifically to isolate the second class.
+
+### Attack Scenario Suite
+
+Ten scenarios, each mapped to its primary OWASP category. Where a scenario has multiple channel or backend variants, these are run as payload/config variants of the same workflow rather than separate workflow files — see `n8n/workflows/README.md` for the full variant matrix.
+
+| # | Scenario | Primary OWASP Category | Layer | Notes |
+|---|---|---|---|---|
+| **wf_01** | Direct Prompt Injection (baseline) | LLM01 | Reasoning | Calibration control — every other result is interpreted relative to this |
+| **wf_02** | Indirect Injection, multi-channel | LLM01 | Reasoning | Variants: web content, database row, email body |
+| **wf_03** | Insecure Output Handling: Code/Expression Injection | LLM02 | Reasoning + Platform | Contrasts generic "LLM output reaches a Code node" against n8n's second-order `=`-prefix expression re-evaluation pattern |
+| **wf_04** | Excessive Agency / Tool Hijack + Guardrail Bypass | ASI02 | Reasoning | Includes a tool-equivalence bypass test against the custom guardrail's own human-review gate |
+| **wf_05** | Credential Exfiltration via SSRF-chained `$fromAI()` | LLM02 / ASI02 | Reasoning + Platform | Tests whether n8n's credential-conditional SSRF protection holds when an AI-populated URL parameter is the delivery mechanism |
+| **wf_06** | System Prompt Extraction | LLM07 | Reasoning | Architecture-agnostic; comparison point against published LangChain/chatbot benchmark numbers |
+| **wf_07** | Memory and Context Poisoning | ASI06 | Reasoning | Variants: session/buffer memory, vector store retrieval memory |
+| **wf_08** | Unbounded Consumption / Agent Loop | LLM10 | Reasoning | Architecture-agnostic; impact framing (billed API/execution cost) is n8n-relevant |
+| **wf_09** | Agent Identity & Privilege Abuse via Sub-workflow Credential Crossing | ASI03 | Platform | Tests whether injected context can redirect an AI-populated `Execute Sub-workflow` target to a more privileged workflow |
+| **wf_10** | Composite kill chain | ASI01 + ASI02 + ASI03 | Reasoning + Platform | Chains wf_02 → wf_04 → wf_09 payloads to test whether per-step mitigations hold when only the chain as a whole needs to succeed |
+
+A central research question is whether traditional LLM safety mitigations (system prompts, output filtering, basic guardrails) remain effective once outputs are interpreted as **structured execution instructions** rather than natural language responses — and separately, whether an application-layer guardrail can reach failures that occur entirely within n8n's platform layer (wf_03, wf_05, wf_09) at all.
 
 ---
 
@@ -71,7 +88,7 @@ In addition to Docker services, two supporting Python servers can be run locally
 | PostgreSQL | 5432 | n8n state + `agent_messages` table |
 | Ollama | 11434 | Local LLM inference (fallback / air-gapped mode) |
 | mockapi | 3000 | `json-server` — serves mock documents, FAQs, notifications |
-| Mock Server (Python) | 8080 | Flask server — 15+ endpoints for indirect injection experiments |
+| Mock Server (Python) | 8080 | Flask server — 15+ endpoints for indirect injection experiments, including internal/non-routable targets for wf_05 SSRF testing |
 | Attacker Listener | 9999 | Flask server — captures exfiltrated data during experiments |
 
 ### Multi-Model LLM Backend
@@ -86,6 +103,8 @@ All workflows use the OpenAI-compatible `lmChatOpenAi` node, which works with an
 | Ollama | http://ollama:11434/v1 | mistral, llama3, ... |
 
 Model and base URL are configured via environment variables and injected at runtime via n8n expressions (`{{ $env.LLM_MODEL }}`, `{{ $env.LLM_BASE_URL }}`). The batch patcher script (`scripts/patch_workflow_models.py`) stamps these expressions into all workflow JSONs. No model-specific node types are needed.
+
+**Note on determinism:** temperature=0 reduces but does not guarantee bitwise-identical outputs on hosted APIs — OpenRouter in particular can route the same request to different backend instances. Results should be reported as success rates with confidence intervals across the 30-trial batch (see *Reproducibility* below), not as single-run outcomes.
 
 ---
 
@@ -121,12 +140,16 @@ OPENCODE_API_KEY=sk-...          # or
 # Set the model and base URL for your provider:
 LLM_BASE_URL=https://api.opencode.ai/v1
 LLM_MODEL=opencode/deepseek-v4-flash-free
+
+# Pin the n8n image version. Used for CVE-boundary comparisons —
+# see "Platform Version Testing" below. Do not leave on 'latest'.
+N8N_VERSION=1.122.0
 ```
 
 **Important:** Ensure `N8N_ENCRYPTION_KEY` is at least 32 characters. n8n will refuse to start with a weak encryption key when using PostgreSQL.
 
 ### Step 2: Create Virtual Environment + Install Dependencies
- 
+
 ```bash
 # Create virtual environment
 python -m venv .venv
@@ -194,17 +217,18 @@ The setup script will:
 
 ### Step 6: Start Supporting Servers (for selected experiments)
 
-For indirect injection and exfiltration experiments, start these local servers:
+For indirect injection, SSRF, and exfiltration experiments, start these local servers:
 
 ```bash
-# Terminal 1: Mock API server (serves infected web pages for wf_02, mock DB for wf_03, etc.)
+# Terminal 1: Mock API server (serves infected web pages / DB rows for wf_02,
+# internal/metadata-style targets for wf_05 SSRF variants, etc.)
 python test-servers/mock_server.py
 
-# Terminal 2: Attacker listener (captures exfiltrated data for wf_01, wf_06, wf_07, etc.)
+# Terminal 2: Attacker listener (captures exfiltrated data for wf_01, wf_05, wf_06, wf_09, etc.)
 python test-servers/attacker_listener.py
 ```
 
-Workflows wf_02, wf_03, wf_05, and wf_06 rely on one or both of these servers being available.
+Workflows wf_02, wf_03, wf_05, wf_07, and wf_09 rely on one or both of these servers being available.
 
 ### Step 7: Activate Workflows in n8n
 
@@ -224,7 +248,7 @@ python scripts/run_avise.py --all
 python scripts/run_avise.py --wf wf_01 --variant baseline --format html
 ```
 
-See `n8n/workflows/README.md` for detailed AVISE usage and experiment execution guidance.
+See `n8n/workflows/README.md` for detailed AVISE usage, per-scenario channel/backend variants, and experiment execution guidance.
 
 ---
 
@@ -240,22 +264,44 @@ See `n8n/workflows/README.md` for detailed AVISE usage and experiment execution 
 
 ### Attack Payloads
 
-A comprehensive payload library is at `n8n/workflows/test_payloads.json` containing **46+ attack payloads** organized by workflow with severity ratings (high/medium/low), expected success indicators, and injection techniques. These payloads are automatically converted into AVISE SET config files (`avise_custom/configs/SET/`) by `scripts/generate_avise_configs.py`. Payloads cover:
+A payload library is at `n8n/workflows/test_payloads.json`, organized by workflow scenario with severity ratings (high/medium/low), expected success indicators, and injection technique. Payloads are layered in three tiers per applicable scenario rather than tested flat, so that guardrail effectiveness can be reported by tier rather than as a single aggregate number that naive payloads alone would inflate:
+
+- **Tier 1 — naive:** direct imperative overrides ("ignore previous instructions and...")
+- **Tier 2 — obfuscated:** encoding/leetspeak/split-payload variants of the same instruction
+- **Tier 3 — contextual:** the instruction embedded in plausible, legitimate-looking content (a fake support ticket, an "internal note," a troubleshooting suggestion)
+
+Payloads are automatically converted into AVISE SET config files (`avise_custom/configs/SET/`) by `scripts/generate_avise_configs.py`. Coverage includes:
 
 - Explicit instruction override
 - System prompt extraction attempts
 - Role-play / developer mode impersonation
 - Delimiter injection / format breaking
-- Tool call injection and hallucination
+- Tool call injection and hallucination, including tool-equivalence bypass payloads (wf_04)
 - Multi-turn extraction chains
 - Indirect payloads (web pages, database rows, email bodies)
+- Second-order/stored payloads beginning with `=` (wf_03)
+- SSRF target payloads for credential-less HTTP Request tool paths (wf_05)
+- Sub-workflow redirection payloads (wf_09)
+
+### Metrics
+
+Beyond simple attack success rate, the AVISE evaluators in `avise_custom/evaluators/` distinguish:
+
+- **Attempted vs. completed:** whether the model produced injection-flavored text versus whether the workflow actually executed a confirmed external side effect (checked against the attacker listener / mock API logs), since these represent meaningfully different severities.
+- **Gate-bypass rate:** for wf_04, whether an attack achieved a gated tool's effect through a different, ungated tool the guardrail wasn't watching — distinct from whether the guardrail blocked the tool it was designed to gate.
+- **Guardrail bypass rate (isolated):** the custom guardrail sub-workflow is also called directly, bypassing the main agent, with payloads designed to evade its own detection logic specifically — since a guardrail's detector is itself attackable and this should be measured independently of end-to-end success.
+
+### Platform Version Testing
+
+For wf_03, wf_05, and wf_09 specifically, the full battery should be run against both a pre-patch and post-patch `N8N_VERSION` (see the n8n CVE/GHSA advisory history for the relevant boundary), with the custom guardrail active and unchanged in both runs. If a platform-layer scenario succeeds identically regardless of n8n's patch level, that demonstrates the guardrail and the platform's own security fixes are operating on orthogonal layers — a distinct finding from "the guardrail failed to catch this attack."
 
 ### Reproducibility
 
-All LLM nodes use **temperature = 0** for deterministic outputs. For cross-session reproducibility:
+All LLM nodes use **temperature = 0** for reduced-variance outputs. For cross-session reproducibility:
 - Use the same API key and model
 - Pin n8n version via `N8N_VERSION` in `.env`
 - Run each payload 30 times per LLM backend per workflow variant
+- Report results as success rates with confidence intervals, not single-run outcomes (see *Multi-Model LLM Backend* note above)
 - AVISE reports provide structured results for cross-comparison
 
 ### Logging
@@ -289,9 +335,9 @@ ls avise-reports/
 │
 ├── n8n/
 │   └── workflows/
-│       ├── README.md               # Workflow-specific documentation
-│       ├── test_payloads.json      # 46+ attack payloads across 10 scenarios
-│       ├── baseline/               # 10 unprotected attack workflows
+│       ├── README.md               # Per-scenario documentation, incl. channel/backend variant matrix
+│       ├── test_payloads.json      # Tiered attack payloads across 10 scenarios
+│       ├── baseline/               # 10 unprotected attack workflows (wf_01-wf_10)
 │       ├── basic_guardrail/        # 10 n8n built-in guardrail variants
 │       └── custom_guardrail/       # Reusable security sub-workflow scaffold
 │
@@ -299,7 +345,7 @@ ls avise-reports/
 │   ├── connectors/
 │   │   └── n8n_webhook.py          # AVISE n8n webhook POST connector
 │   ├── evaluators/
-│   │   └── tool_call.py            # Tool call attack detection evaluator
+│   │   └── tool_call.py            # Tool call / side-effect attack detection evaluator
 │   ├── sets/
 │   │   └── n8n_workflow.py         # Custom AVISE SET pipeline
 │   └── configs/
@@ -343,8 +389,10 @@ This environment is designed for **defensive security research** in a fully cont
 - All LLM inference can run locally via Ollama — no data leaves the host (air-gapped mode)
 - When using external API providers, no sensitive or real-world data is used
 - No real exploits, attack tools, or malicious software are included in the repository
-- Mock servers simulate attacker infrastructure — no actual exfiltration occurs
+- Mock servers simulate attacker infrastructure, and wf_05's SSRF targets point exclusively at local/mock endpoints — no actual internal network access, cloud metadata endpoints, or third-party infrastructure is targeted
 - All workflow JSONs import with `active: false` — no automatic execution
+
+**Responsible disclosure:** wf_03, wf_05, and wf_09 specifically probe n8n's platform-layer execution mechanisms (expression evaluation, SSRF handling, sub-workflow credential scoping). If testing on a given `N8N_VERSION` surfaces behavior consistent with an unpatched or undisclosed vulnerability — rather than a known, already-patched issue being used for comparison — testing on that version stops and the finding is reported to n8n via their disclosed security process before any further use or publication.
 
 ---
 
@@ -354,4 +402,4 @@ Provided for educational and research purposes.
 
 ## Related Work
 
-This project sits at the intersection of LLM security, agentic workflow systems, and software supply-chain trust boundaries in AI orchestration platforms. Despite increasing adoption of tools like n8n for AI-driven automation, the security properties of these systems remain largely unexplored — particularly in settings where model outputs directly determine control flow and external actions. For OWASP LLM taxonomy references, see [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-llm-applications/).
+This project sits at the intersection of LLM security, agentic workflow systems, and software supply-chain trust boundaries in AI orchestration platforms. It draws on two complementary taxonomies — the [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-llm-applications/), which addresses risks at the level of the model's own input/output behavior, and the OWASP Top 10 for Agentic Applications, which addresses risks arising from autonomy, persistent memory, and multi-step tool access. It is also informed by the code-first agent security literature (InjecAgent, AgentDojo, Agent Security Bench, IPIGuard), which this project deliberately extends into a low-code, node-graph execution environment that literature does not cover. Despite increasing adoption of tools like n8n for AI-driven automation, the security properties specific to this execution model — as distinct from the reasoning-layer vulnerabilities already documented for code-first agents — remain largely unexamined; this lab's platform-layer scenarios (wf_03, wf_05, wf_09) are designed to close that gap.
