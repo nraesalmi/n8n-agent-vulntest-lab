@@ -34,7 +34,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 # Import custom modules FIRST to register them with AVISE registries
 import n8n_avise_ext.connectors  # noqa: F401 (registers n8n-webhook-lm connector)
-import n8n_avise_ext.evaluators  # noqa: F401 (registers tool_call evaluator)
+import n8n_avise_ext.evaluators  # noqa: F401 (registers custom evaluators)
 import n8n_avise_ext.sets  # noqa: F401 (registers n8n_workflow SET)
 
 from avise.cli import main as avise_main

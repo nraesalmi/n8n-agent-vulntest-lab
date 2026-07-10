@@ -42,4 +42,4 @@ __pycache__/
 
 # AVISE evaluation results
 
-avise_reports/
+avise-reports/*

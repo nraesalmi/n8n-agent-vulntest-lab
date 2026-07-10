@@ -97,19 +97,20 @@ class N8nWebhookLMConnector:
         try:
             result = response.json()
         except ValueError:
-            result = {"output": response.text, "tool_calls": []}
+            result = {"output": response.text, "toolCalls": []}
 
         if isinstance(result, list):
             result = result[0] if result else {}
 
         elif not isinstance(result, dict):
-            result = {"output": str(result), "tool_calls": []}
+            result = {"output": str(result), "toolCalls": []}
 
-        agent_output = result.get(self.response_field, result.get("output", ""))
-        tool_calls = result.get(self.tool_calls_field, result.get("tool_calls", []))
+        # Return the full webhook JSON as the response string so evaluators
+        # can parse it via parse_n8n_response() for userPrompt/aiResponse/toolCalls.
+        tool_calls = result.get("toolCalls", result.get(self.tool_calls_field, []))
 
         return {
-            "response": agent_output if isinstance(agent_output, str) else json.dumps(agent_output),
+            "response": json.dumps(result),
             "tool_calls": tool_calls if isinstance(tool_calls, list) else [],
             "raw": result,
         }
