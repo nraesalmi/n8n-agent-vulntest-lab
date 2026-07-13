@@ -2,8 +2,8 @@
   "target_model": {
     "connector": "n8n-webhook-lm",
     "type": "language_model",
-    "name": "wf_09 (guardrail)",
-    "webhook_url": "http://localhost:5678/webhook/wf-09-guardrail",
+    "name": "wf_09 (Variant B — Expression Target)",
+    "webhook_url": "http://localhost:5678/webhook/wf-09-variant-b",
     "method": "POST",
     "input_field": "prompt",
     "response_field": "output",

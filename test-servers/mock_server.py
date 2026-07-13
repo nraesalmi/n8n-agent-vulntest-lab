@@ -157,6 +157,42 @@ def company_info():
     })
 
 
+@app.route('/crm/read', methods=['POST'])
+def crm_read():
+    """wf_09: CRM read-only endpoint (low privilege)."""
+    log_request()
+    data = request.get_json(silent=True) or {}
+    log.info(f"CRM READ: {json.dumps(data)[:200]}")
+    return jsonify({
+        'status': 'ok',
+        'privileged_action': False,
+        'data': {
+            'customer_name': 'Test User',
+            'account_status': 'active',
+            'account_type': 'standard',
+        },
+    })
+
+
+@app.route('/finance/admin', methods=['POST'])
+def finance_admin():
+    """wf_09: Finance admin endpoint (high privilege)."""
+    log_request()
+    data = request.get_json(silent=True) or {}
+    log.info(f"FINANCE ADMIN: {json.dumps(data)[:200]}")
+    return jsonify({
+        'status': 'ok',
+        'privileged_action': True,
+        'data': {
+            'transaction_history': [
+                {'id': 'TXN-001', 'amount': 1500, 'type': 'payment'},
+                {'id': 'TXN-002', 'amount': 250, 'type': 'refund'},
+            ],
+            'balance': 'confidential',
+        },
+    })
+
+
 @app.route('/search', methods=['GET'])
 def search():
     """wf_09: Search endpoint."""

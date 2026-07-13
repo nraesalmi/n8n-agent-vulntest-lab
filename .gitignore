@@ -39,6 +39,7 @@ n8n_cookies.txt
 
 # Pycache
 __pycache__/
+*.pyc
 
 # AVISE evaluation results
 

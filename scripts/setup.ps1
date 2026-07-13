@@ -92,12 +92,18 @@ docker exec n8n-app n8n import:credentials --separate --input=/tmp/credentials -
 Write-Host "   Credentials imported."
 
 Write-Host ""
-Write-Host "4. Importing workflows..."
+Write-Host "4. Cleaning stale workflows..."
+docker exec n8n-postgres psql -U n8n -d n8n -c "DELETE FROM public.workflow_entity WHERE name LIKE 'WF-%' OR name LIKE 'SW-%';" 2>&1 | Out-Null
+Write-Host "   Stale workflows removed."
+
+Write-Host ""
+Write-Host "5. Importing workflows..."
 
 $workflowDirs = @(
     "/tmp/workflows/baseline",
     "/tmp/workflows/basic_guardrail",
-    "/tmp/workflows/custom_guardrail"
+    "/tmp/workflows/custom_guardrail",
+    "/tmp/workflows/subworkflows"
 )
 
 foreach ($dir in $workflowDirs) {

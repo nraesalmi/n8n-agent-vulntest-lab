@@ -69,7 +69,7 @@ services:
       - LLM_MODEL=${LLM_MODEL:-gpt-4o}
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./n8n/workflows:/tmp/workflows:ro
+      - ./n8n_v2.24.0/workflows:/tmp/workflows:ro
       # File I/O mounts removed in favor of AVISE-driven webhook triggers
     healthcheck:
       test: ["CMD", "node", "-e", "const http = require('http'); http.get('http://localhost:5678/healthz', r => process.exit(r.statusCode === 200 ? 0 : 1))"]

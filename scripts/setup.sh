@@ -81,7 +81,7 @@ done
 echo ""
 echo "3. Cleaning stale workflows..."
 docker exec n8n-postgres psql -U n8n -d n8n -c \
-  "DELETE FROM public.workflow_entity WHERE name LIKE 'WF-%' OR name LIKE 'WF-%';" > /dev/null 2>&1 || true
+  "DELETE FROM public.workflow_entity WHERE name LIKE 'WF-%' OR name LIKE 'SW-%';" > /dev/null 2>&1 || true
 echo "   Stale workflows removed."
 
 # ====== Copy credentials to container =================================
@@ -100,7 +100,7 @@ echo "   Credentials imported."
 echo ""
 echo "6. Importing workflows from subdirectories..."
 
-for dir in baseline basic_guardrail custom_guardrail; do
+for dir in baseline basic_guardrail custom_guardrail subworkflows; do
   if docker exec n8n-app sh -c "[ -d /tmp/workflows/$dir ]"; then
     docker exec n8n-app n8n import:workflow --separate --input="/tmp/workflows/$dir"
     echo "   Imported: $dir"
