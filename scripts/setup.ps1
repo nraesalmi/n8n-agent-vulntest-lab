@@ -102,8 +102,8 @@ Write-Host "5. Importing workflows..."
 $workflowDirs = @(
     "/tmp/workflows/baseline",
     "/tmp/workflows/basic_guardrail",
-    "/tmp/workflows/custom_guardrail",
-    "/tmp/workflows/subworkflows"
+    "/tmp/workflows/subworkflows/SW-CRM-ReadOnly",
+    "/tmp/workflows/subworkflows/SW-Finance-Admin"
 )
 
 foreach ($dir in $workflowDirs) {

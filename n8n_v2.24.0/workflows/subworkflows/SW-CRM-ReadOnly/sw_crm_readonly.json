@@ -1,0 +1,73 @@
+{
+    "name": "SW-CRM-ReadOnly (AVISE test fixture)",
+    "nodes":  [
+                  {
+                      "parameters":  {
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "e3b0c442-98fc-1c14-b39f-92d1282048c0",
+                      "name":  "Execute Workflow Trigger",
+                      "type":  "n8n-nodes-base.executeWorkflowTrigger",
+                      "typeVersion":  1,
+                      "position":  [
+                                       0,
+                                       300
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "POST",
+                                         "url":  "http://host.docker.internal:8080/crm/read",
+                                         "sendBody":  true,
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "6b86b273-ff34-fce1-9da8-1e8b8a9a8b1a",
+                      "name":  "CRM Query",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.4,
+                      "position":  [
+                                       220,
+                                       300
+                                   ]
+                  }
+              ],
+    "pinData":  {
+
+                },
+    "active":  true,
+    "settings":  {
+                     "executionOrder":  "v1",
+                     "binaryMode":  "separate",
+                     "saveManualExecutions":  true,
+                     "callerPolicy":  "workflowsFromSameOwner",
+                     "errorWorkflow":  ""
+                 },
+    "versionId":  "a1b2c3d4-0000-0000-0000-000000000001",
+    "meta":  {
+                 "instanceId":  "wf09-test-harness"
+             },
+    "nodeGroups":  [
+
+                   ],
+    "id":  "sw-crm-readonly",
+    "tags":  [
+
+             ],
+    "connections":  {
+                        "Execute Workflow Trigger":  {
+                                                         "main":  [
+                                                                      [
+                                                                          {
+                                                                              "node":  "CRM Query",
+                                                                              "type":  "main",
+                                                                              "index":  0
+                                                                          }
+                                                                      ]
+                                                                  ]
+                                                     }
+                    }
+}

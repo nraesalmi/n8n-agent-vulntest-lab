@@ -2,8 +2,8 @@
   "target_model": {
     "connector": "n8n-webhook-lm",
     "type": "language_model",
-    "name": "wf_09 (Variant B — Expression Target)",
-    "webhook_url": "http://localhost:5678/webhook/wf-09-variant-b",
+    "name": "wf_09 (Expression Target — baseline)",
+    "webhook_url": "http://localhost:5678/webhook/wf-09",
     "method": "POST",
     "input_field": "prompt",
     "response_field": "output",

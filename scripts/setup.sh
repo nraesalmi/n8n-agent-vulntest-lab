@@ -100,7 +100,7 @@ echo "   Credentials imported."
 echo ""
 echo "6. Importing workflows from subdirectories..."
 
-for dir in baseline basic_guardrail custom_guardrail subworkflows; do
+for dir in baseline basic_guardrail subworkflows/SW-CRM-ReadOnly subworkflows/SW-Finance-Admin; do
   if docker exec n8n-app sh -c "[ -d /tmp/workflows/$dir ]"; then
     docker exec n8n-app n8n import:workflow --separate --input="/tmp/workflows/$dir"
     echo "   Imported: $dir"
@@ -108,11 +108,6 @@ for dir in baseline basic_guardrail custom_guardrail subworkflows; do
     echo "   Skipping: $dir (not found)"
   fi
 done
-
-if docker exec n8n-app sh -c 'find /tmp/workflows -maxdepth 1 -name "*.json" | grep -q .'; then
-  docker exec n8n-app n8n import:workflow --separate --input=/tmp/workflows
-  echo "   Imported: root /tmp/workflows"
-fi
 
 echo "   Workflows imported."
 
