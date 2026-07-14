@@ -55,32 +55,36 @@ A central research question is whether traditional LLM safety mitigations (syste
 ### Docker Services
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           Docker Network                                  │
-│                                                                          │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐              │
-│  │              │    │              │    │              │              │
-│  │     n8n      │───▶│  PostgreSQL  │    │    Ollama    │              │
-│  │    :5678     │    │   :5432      │    │   :11434     │              │
-│  │              │◀───│              │    │              │              │
-│  └───┬────┬─────┘    └──────────────┘    └──────────────┘              │
-│      │    │                                                            │
-│      │    └──────────┐                                                 │
-│      │               ▼                                                 │
-│      │    ┌──────────────────┐                                         │
-│      │    │    mockapi       │                                         │
-│      │    │    :3000         │                                         │
-│      │    └──────────────────┘                                         │
-│      │                                                                 │
-│                                                                        │
-│  ┌────────────────────────────────────────────────────┐                │
-│  │  AVISE → POST to webhook → agent executes         │               │
-│  │  HTTP response with tool calls for evaluation      │               │
-│  └────────────────────────────────────────────────────┘                │
-└──────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           Docker Network                                      │
+│                                                                              │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                  │
+│  │              │    │              │    │              │                  │
+│  │     n8n      │───▶│  PostgreSQL  │    │    Ollama    │                  │
+│  │    :5678     │    │   :5432      │    │   :11434     │                  │
+│  │              │◀───│              │    │              │                  │
+│  └───┬────┬─────┘    └──────────────┘    └──────────────┘                  │
+│      │    │                                                                │
+│      │    ├────────────────────────────┐                                   │
+│      │    │                            │                                   │
+│      │    ▼                            ▼                                   │
+│      │  ┌──────────────────┐  ┌──────────────────┐                        │
+│      │  │   mock-server    │  │attacker-listener │                        │
+│      │  │    :8080         │  │    :9999         │                        │
+│      │  └──────────────────┘  └──────────────────┘                        │
+│      │  ┌──────────────────┐                                               │
+│      │  │    mockapi       │                                               │
+│      │  │    :3000         │                                               │
+│      │  └──────────────────┘                                               │
+│      │                                                                     │
+│  ┌────────────────────────────────────────────────────────┐                │
+│  │  AVISE → POST to webhook → agent executes             │               │
+│  │  HTTP response with tool calls for evaluation          │               │
+│  └────────────────────────────────────────────────────────┘                │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-In addition to Docker services, two supporting Python servers can be run locally:
+All services run as Docker containers:
 
 | Service | Port | Purpose |
 |---|---|---|
@@ -88,8 +92,8 @@ In addition to Docker services, two supporting Python servers can be run locally
 | PostgreSQL | 5432 | n8n state + `agent_messages` table |
 | Ollama | 11434 | Local LLM inference (fallback / air-gapped mode) |
 | mockapi | 3000 | `json-server` — serves mock documents, FAQs, notifications |
-| Mock Server (Python) | 8080 | Flask server — 15+ endpoints for indirect injection experiments, including internal/non-routable targets for wf_05 SSRF testing |
-| Attacker Listener | 9999 | Flask server — captures exfiltrated data during experiments |
+| mock-server | 8080 | Flask server — 15+ endpoints for indirect injection experiments, including internal/non-routable targets for wf_05 SSRF testing |
+| attacker-listener | 9999 | Flask server — captures exfiltrated data during experiments |
 
 ### Multi-Model LLM Backend
 
@@ -170,22 +174,17 @@ pip install -r requirements.txt
 docker compose up -d
 ```
 
-This starts n8n (port 5678), PostgreSQL (port 5432), Ollama (port 11434), and mockapi (port 3000).
+This starts n8n (port 5678), PostgreSQL (port 5432), Ollama (port 11434), mockapi (port 3000), mock-server (port 8080), and attacker-listener (port 9999).
 
 ### Step 4: (Optional) Pull Ollama Model
 
 Only needed if using Ollama as your LLM backend (air-gapped mode):
 
 ```bash
-./scripts/pull-model.sh        # pulls the model from .env OLLAMA_MODEL
-./scripts/pull-model.sh llama3.1  # or specify a different model
+docker exec n8n-ollama ollama pull llama3.1:8b
 ```
 
-Or call the container itself to pull the model with:
-
-```bash
-docker exec -it n8n-ollama ollama pull llama3.1
-```
+Set `OLLAMA_MODEL=llama3.1:8b` in `.env` (or a smaller model like `phi3` or `mistral`).
 
 ### Step 5: Import Credentials and Workflows
 
@@ -215,24 +214,21 @@ The setup script will:
 - Import all workflow JSONs from `baseline/`, `basic_guardrail/`, and `custom_guardrail/` subdirectories
 - Delete any stale workflows from previous imports
 
-### Step 6: Start Supporting Servers (for selected experiments)
-
-For indirect injection, SSRF, and exfiltration experiments, start these local servers:
-
-```bash
-# Terminal 1: Mock API server (serves infected web pages / DB rows for wf_02,
-# internal/metadata-style targets for wf_05 SSRF variants, etc.)
-python test-servers/mock_server.py
-
-# Terminal 2: Attacker listener (captures exfiltrated data for wf_01, wf_05, wf_06, wf_09, etc.)
-python test-servers/attacker_listener.py
-```
-
-Workflows wf_02, wf_03, wf_05, wf_07, and wf_09 rely on one or both of these servers being available.
-
-### Step 7: Activate Workflows in n8n
+### Step 6: Activate Workflows in n8n
 
 All workflows import in **inactive** state. Open http://localhost:5678 and toggle each workflow to **Active** — this registers the webhook endpoints with n8n.
+
+### Step 7: Test the Webhook
+
+After activating a workflow, you can test it manually with curl:
+
+```bash
+curl -X POST http://localhost:5678/webhook-test/wf-01-baseline \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "What is your return policy?"}'
+```
+
+Use `webhook-test` while the workflow is open in the editor, or `webhook` if it's active.
 
 ### Step 8: Run Security Tests via AVISE
 
@@ -256,7 +252,7 @@ See `n8n/workflows/README.md` for detailed AVISE usage, per-scenario channel/bac
 
 ### Quick Start
 
-1. Ensure all services are running (Docker + supporting servers)
+1. Ensure all Docker services are running (`docker compose ps`)
 2. Activate the target workflow in n8n (toggles webhook on)
 3. Run AVISE: `python scripts/run_avise.py --wf wf_01 --variant baseline`
 4. Check the report in `avise-reports/` for attack success evaluation

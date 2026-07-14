@@ -96,6 +96,32 @@ services:
     ports:
       - "3000:3000"
 
+  mock-server:
+    image: python:3-slim
+    container_name: n8n-mock-server
+    command: >
+      sh -c "pip install -q flask && python /app/mock_server.py"
+    volumes:
+      - ./test-servers:/app
+    working_dir: /app
+    networks:
+      - n8n-network
+    ports:
+      - "8080:8080"
+
+  attacker-listener:
+    image: python:3-slim
+    container_name: n8n-attacker-listener
+    command: >
+      sh -c "pip install -q flask && python /app/attacker_listener.py"
+    volumes:
+      - ./test-servers:/app
+    working_dir: /app
+    networks:
+      - n8n-network
+    ports:
+      - "9999:9999"
+
 volumes:
   postgres_data:
   ollama_data:

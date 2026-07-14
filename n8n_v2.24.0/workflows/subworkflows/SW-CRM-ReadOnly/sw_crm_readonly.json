@@ -19,7 +19,7 @@
                   {
                       "parameters":  {
                                          "method":  "POST",
-                                         "url":  "http://host.docker.internal:8080/crm/read",
+                                         "url":  "http://mock-server:8080/crm/read",
                                          "sendBody":  true,
                                          "options":  {
 

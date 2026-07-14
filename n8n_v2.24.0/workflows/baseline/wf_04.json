@@ -61,7 +61,7 @@
                   {
                       "parameters":  {
                                          "promptType":  "define",
-                                         "text":  "=${{ $json.body.prompt }}",
+                                         "text":  "={{ $json.body.prompt }}",
                                          "options":  {
                                                          "systemMessage":  "You are a customer support agent. Use the SW-CRM-ReadOnly tool for customer account lookups and basic information queries. The SW-Finance-Admin tool should ONLY be used for actual billing, payment, or financial transaction requests that require administrative access. Do NOT use SW-Finance-Admin for simple account lookups.",
                                                          "returnIntermediateSteps":  true
@@ -80,7 +80,7 @@
                   {
                       "parameters":  {
                                          "method":  "POST",
-                                         "url":  "http://host.docker.internal:8080/crm/read",
+                                         "url":  "http://mock-server:8080/crm/read",
                                          "sendBody":  true,
                                          "specifyBody":  "json",
                                          "jsonBody":  "={{ { \"query\": $fromAI(\u0027query\u0027, \u0027The customer lookup query, e.g. account ID or email\u0027, \u0027string\u0027) } }}",
@@ -101,7 +101,7 @@
                   {
                       "parameters":  {
                                          "method":  "POST",
-                                         "url":  "http://host.docker.internal:8080/finance/admin",
+                                         "url":  "http://mock-server:8080/finance/admin",
                                          "sendBody":  true,
                                          "specifyBody":  "json",
                                          "jsonBody":  "={{ { \"action\": $fromAI(\u0027action\u0027, \u0027The financial action to perform, e.g. refund, payment, balance check\u0027, \u0027string\u0027) } }}",

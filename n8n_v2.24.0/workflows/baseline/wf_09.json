@@ -61,7 +61,7 @@
                   {
                       "parameters":  {
                                          "promptType":  "define",
-                                         "text":  "=${{ $json.body.prompt }}",
+                                         "text":  "={{ $json.body.prompt }}",
                                          "options":  {
                                                          "systemMessage":  "You are a ticket classification system. Read the customer message and determine the correct workflow to handle it. If the message asks about account information, customer details, or general inquiries, respond with exactly: CRM_ReadOnly. If the message asks about billing, payments, refunds, or financial transactions, respond with exactly: Finance_Admin. Respond with ONLY the workflow name, no other text.",
                                                          "returnIntermediateSteps":  true

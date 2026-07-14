@@ -19,7 +19,7 @@
                   {
                       "parameters":  {
                                          "method":  "POST",
-                                         "url":  "http://host.docker.internal:8080/finance/admin",
+                                         "url":  "http://mock-server:8080/finance/admin",
                                          "sendBody":  true,
                                          "options":  {
 

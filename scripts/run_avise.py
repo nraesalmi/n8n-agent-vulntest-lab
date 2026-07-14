@@ -17,6 +17,9 @@ Usage:
     # Run without evaluation model (default uses no eval model)
     python scripts/run_avise.py --wf wf_01 --variant baseline --no-eval
 
+    # Run a slim subset of test cases (one per vulnerability category)
+    python scripts/run_avise.py --wf wf_01 --variant baseline --slim
+
     # Specify report format and output directory
     python scripts/run_avise.py --all --format html --output reports/
 """
@@ -60,10 +63,12 @@ def build_args(
     output_dir: str = "avise-reports",
     runs: int = 1,
     no_eval: bool = True,
+    slim: bool = False,
 ) -> list:
     """Build AVISE CLI argument list for a single workflow test."""
     connector_conf = CONNECTOR_DIR / f"{wf_key}_{variant}.json"
-    set_conf = SET_DIR / f"{wf_key}.json"
+    set_filename = f"{wf_key}_slim.json" if slim else f"{wf_key}.json"
+    set_conf = SET_DIR / set_filename
 
     if not connector_conf.exists():
         logger.error(f"Connector config not found: {connector_conf}")
@@ -89,9 +94,9 @@ def build_args(
     return args
 
 
-def run_single(wf_key: str, variant: str, **kwargs):
+def run_single(wf_key: str, variant: str, slim: bool = False, **kwargs):
     """Run AVISE for a single workflow variant."""
-    args = build_args(wf_key, variant, **kwargs)
+    args = build_args(wf_key, variant, slim=slim, **kwargs)
     if args is None:
         return False
 
@@ -140,6 +145,8 @@ def main():
                         help="Disable evaluation language model (default: True)")
     parser.add_argument("--with-eval", action="store_true",
                         help="Enable evaluation language model (requires ELM)")
+    parser.add_argument("--slim", action="store_true",
+                        help="Run a slim subset of test cases (one per vulnerability category)")
 
     args = parser.parse_args()
 
@@ -148,6 +155,7 @@ def main():
         "output_dir": args.output,
         "runs": args.runs,
         "no_eval": not args.with_eval,
+        "slim": args.slim,
     }
 
     if args.all:
