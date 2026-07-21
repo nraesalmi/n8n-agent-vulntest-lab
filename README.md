@@ -4,6 +4,9 @@
 
 A controlled experimental framework for studying how prompt-injection-class attacks and platform-specific execution vulnerabilities propagate through node-based AI workflow systems (n8n), where LLM outputs are compiled into executable workflow graphs with external side effects. Contains **10 attack scenarios** (baseline / basic-guardrail / custom-guardrail variants) and **1 reusable security sub-workflow scaffold**, mapped against both the OWASP Top 10 for LLM Applications and the OWASP Top 10 for Agentic Applications.
 
+
+<img width="1280" height="640" alt="n8n-lab-banner" src="https://github.com/user-attachments/assets/fd0c164e-00c1-443c-aad6-3c5fd3330a3a" />
+
 ---
 
 ## Research Context
