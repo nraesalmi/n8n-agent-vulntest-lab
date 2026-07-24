@@ -6,7 +6,7 @@ against n8n webhook-triggered AI agent workflows.
 
 Usage:
     # Run a single workflow
-    python scripts/run_avise.py --wf wf_01 --variant baseline
+    python scripts/run_avise.py --wf wf_rs_01 --variant baseline
 
     # Run all workflows
     python scripts/run_avise.py --all
@@ -15,10 +15,10 @@ Usage:
     python scripts/run_avise.py --connectorconf <path> --SETconf <path>
 
     # Run without evaluation model (default uses no eval model)
-    python scripts/run_avise.py --wf wf_01 --variant baseline --no-eval
+    python scripts/run_avise.py --wf wf_rs_01 --variant baseline --no-eval
 
     # Run a slim subset of test cases (one per vulnerability category)
-    python scripts/run_avise.py --wf wf_01 --variant baseline --slim
+    python scripts/run_avise.py --wf wf_rs_01 --variant baseline --slim
 
     # Specify report format and output directory
     python scripts/run_avise.py --all --format html --output reports/
@@ -50,7 +50,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 VARIANTS = ["baseline", "guardrail"]
-WORKFLOWS = [f"wf_{i:02d}" for i in range(1, 11)]
+WORKFLOWS = ["wf_rs_01", "wf_rs_03", "wf_ps_03"]
 CONFIG_DIR = PROJECT_ROOT / "n8n_avise_ext" / "configs"
 CONNECTOR_DIR = CONFIG_DIR / "connector"
 SET_DIR = CONFIG_DIR / "SET"
@@ -130,7 +130,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Run AVISE security tests against n8n workflows"
     )
-    parser.add_argument("--wf", help="Workflow ID (e.g., wf_01)")
+    parser.add_argument("--wf", help="Workflow ID (e.g., wf_rs_01)")
     parser.add_argument("--variant", choices=VARIANTS, default="baseline",
                         help="Workflow variant (default: baseline)")
     parser.add_argument("--all", action="store_true",

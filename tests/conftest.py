@@ -113,9 +113,9 @@ def n8n_workflows():
 
 @pytest.fixture(scope="session")
 def wf01_payloads():
-    """Load all wf_01 test cases from the SET config JSON."""
+    """Load all wf_rs_01 test cases from the SET config JSON."""
     path = __import__("pathlib").Path(__file__).resolve().parent.parent \
-        / "n8n_avise_ext" / "configs" / "SET" / "wf_01.json"
+        / "n8n_avise_ext" / "configs" / "SET" / "wf_rs_01.json"
     with open(path, encoding="utf-8") as f:
         config = json.load(f)
     return config.get("sets", [])
@@ -125,8 +125,8 @@ def wf01_payloads():
 
 @pytest.fixture(scope="session")
 def connector_config():
-    """Load the wf_01 baseline connector config."""
+    """Load the wf_rs_01 baseline connector config."""
     path = __import__("pathlib").Path(__file__).resolve().parent.parent \
-        / "n8n_avise_ext" / "configs" / "connector" / "wf_01_baseline.json"
+        / "n8n_avise_ext" / "configs" / "connector" / "wf_rs_01_baseline.json"
     with open(path, encoding="utf-8") as f:
         return json.load(f)

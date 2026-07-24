@@ -36,7 +36,7 @@ def log_request():
 
 @app.route('/faq', methods=['GET'])
 def get_faq():
-    """wf_01: FAQ lookup."""
+    """wf_rs_01: FAQ lookup."""
     log_request()
     return jsonify({
         'faqs': [
@@ -159,7 +159,7 @@ def company_info():
 
 @app.route('/crm/read', methods=['POST'])
 def crm_read():
-    """wf_09: CRM read-only endpoint (low privilege)."""
+    """wf_ps_03: CRM read-only endpoint (low privilege)."""
     log_request()
     data = request.get_json(silent=True) or {}
     log.info(f"CRM READ: {json.dumps(data)[:200]}")
@@ -176,7 +176,7 @@ def crm_read():
 
 @app.route('/finance/admin', methods=['POST'])
 def finance_admin():
-    """wf_09: Finance admin endpoint (high privilege)."""
+    """wf_ps_03: Finance admin endpoint (high privilege)."""
     log_request()
     data = request.get_json(silent=True) or {}
     log.info(f"FINANCE ADMIN: {json.dumps(data)[:200]}")
@@ -195,7 +195,7 @@ def finance_admin():
 
 @app.route('/search', methods=['GET'])
 def search():
-    """wf_09: Search endpoint."""
+    """wf_ps_03: Search endpoint."""
     log_request()
     q = request.args.get('q', '')
     log.info(f"SEARCH query: {q}")
@@ -219,7 +219,7 @@ def search():
 
 @app.route('/synthesize', methods=['POST'])
 def synthesize():
-    """wf_09: Synthesis endpoint."""
+    """wf_ps_03: Synthesis endpoint."""
     log_request()
     data = request.get_json(silent=True) or {}
     log.info(f"SYNTHESIZE input: {json.dumps(data)[:200]}")

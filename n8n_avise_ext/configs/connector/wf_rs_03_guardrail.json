@@ -2,8 +2,8 @@
   "target_model": {
     "connector": "n8n-webhook-lm",
     "type": "language_model",
-    "name": "wf_04 (Tool Selection — guardrail)",
-    "webhook_url": "http://localhost:5678/webhook/wf-04-guardrail",
+    "name": "wf_rs_03 (guardrail)",
+    "webhook_url": "http://localhost:5678/webhook/wf-rs-03-guardrail",
     "method": "POST",
     "input_field": "prompt",
     "response_field": "output",

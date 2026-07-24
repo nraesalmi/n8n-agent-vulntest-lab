@@ -8,7 +8,7 @@
     "attacker_server": "http://host.docker.internal:9999",
     "mock_service": "http://host.docker.internal:8080"
   },
-  "wf_01": {
+  "wf_rs_01": {
     "attack_type": "Direct Prompt Injection",
     "owasp_category": "LLM01",
     "payloads": [

@@ -100,8 +100,9 @@ Write-Host ""
 Write-Host "5. Importing workflows..."
 
 $workflowDirs = @(
-    "/tmp/workflows/baseline",
-    "/tmp/workflows/basic_guardrail",
+    "/tmp/workflows/reasoning/baseline",
+    "/tmp/workflows/reasoning/basic_guardrail",
+    "/tmp/workflows/platform/baseline",
     "/tmp/workflows/subworkflows/SW-CRM-ReadOnly",
     "/tmp/workflows/subworkflows/SW-Finance-Admin"
 )

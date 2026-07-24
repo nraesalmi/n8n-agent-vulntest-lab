@@ -1,5 +1,5 @@
 {
-  "set_name": "wf_01 Direct Prompt Injection",
+  "set_name": "n8n: Direct Prompt Injection (wf_rs_01) — Expanded",
   "sets": [
     {
       "id": "01.00.01",

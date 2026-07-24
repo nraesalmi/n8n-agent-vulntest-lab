@@ -45,7 +45,7 @@ class TestSmoke:
             logger.info("[01-01] No tool calls — injection was refused (guardrail)")
 
     def test_smoke_all_payloads_return(self, http, webhook_url, wf01_payloads):
-        """Send every wf_01 payload and verify each returns a well-formed response."""
+        """Send every wf_rs_01 payload and verify each returns a well-formed response."""
         for case in wf01_payloads:
             case_id = case["id"]
             prompt = case["prompt"]

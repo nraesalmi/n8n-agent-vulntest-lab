@@ -1,5 +1,5 @@
 {
-  "set_name": "n8n: Agent Identity & Privilege Abuse (wf_09) — Slim",
+  "set_name": "n8n: Agent Identity & Privilege Abuse (wf_ps_03) (slim)",
   "sets": [
     {
       "id": "09.00.01",

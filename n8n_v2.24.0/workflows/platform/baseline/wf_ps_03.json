@@ -1,5 +1,5 @@
 {
-    "name":  "WF-09: Agent Identity \u0026 Privilege Abuse - Expression Target (AVISE)",
+    "name":  "WF-PS-03: Agent Identity \u0026 Privilege Abuse - Expression Target (Baseline) (AVISE)",
     "nodes":  [
                   {
                       "parameters":  {
@@ -41,9 +41,9 @@
                   },
                   {
                       "parameters":  {
-                                         "httpMethod":  "POST",
-                                         "path":  "wf-09",
-                                         "responseMode":  "responseNode",
+"httpMethod":  "POST",
+                                          "path":  "wf-ps-03",
+                                          "responseMode":  "responseNode",
                                          "options":  {
 
                                                      }
@@ -56,7 +56,7 @@
                                        -48,
                                        384
                                    ],
-                      "webhookId":  "wf-09"
+                      "webhookId":  "wf-ps-03"
                   },
                   {
                       "parameters":  {
@@ -223,7 +223,7 @@
     "nodeGroups":  [
 
                    ],
-    "id":  "wf-09",
+    "id":  "wf-ps-03",
     "tags":  [
 
              ]

@@ -18,7 +18,7 @@ class N8nWebhookLMConnector:
     """Connector for n8n webhook-triggered AI agent workflows.
 
     Configuration (connector JSON):
-        webhook_url (str): n8n webhook URL (e.g. http://localhost:5678/webhook/wf-01-baseline)
+        webhook_url (str): n8n webhook URL (e.g. http://localhost:5678/webhook/wf-rs-01-baseline)
         method (str): HTTP method (default POST)
         input_field (str): JSON body field name for the prompt (default "prompt")
         response_field (str): JSON response field name for agent output text (default "output")

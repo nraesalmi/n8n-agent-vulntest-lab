@@ -1,5 +1,5 @@
 {
-  "name": "WF-01: Direct Prompt Injection via Chat Input (Baseline) (AVISE)",
+  "name": "WF-RS-01: Direct Prompt Injection (Baseline) (AVISE)",
   "nodes": [
     {
       "parameters": {
@@ -55,7 +55,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "wf-01-baseline",
+        "path": "wf-rs-01-baseline",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -67,7 +67,7 @@
         -48,
         384
       ],
-      "webhookId": "wf-01-baseline"
+      "webhookId": "wf-rs-01-baseline"
     },
     {
       "parameters": {

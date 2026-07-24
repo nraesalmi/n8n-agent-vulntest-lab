@@ -1,6 +1,6 @@
 {
   "id": "eLoFBZCnOl53TcIA",
-  "name": "WF-01: Direct Prompt Injection via Chat Input (Guardrail) (AVISE)",
+  "name": "WF-RS-01: Direct Prompt Injection (Guardrail) (AVISE)",
   "nodes": [
     {
       "id": "a1b2c3d4-0102-0002-0001-000000000002",
@@ -220,7 +220,7 @@
         50
       ],
       "parameters": {
-        "content": "=== ATTACK VECTOR: LLM01 Direct Prompt Injection ===\n\nGUARDRAIL VARIANT\n\nAdded protections:\n1. Code node: Injection pattern detection (keyword/regex matching)\n2. IF node: Routes blocked inputs away from the AI Agent\n3. Set node: Returns a canned \"I cannot process that request.\" response\n\nCompare results with wf_01_direct_injection_baseline.json to measure guardrail effectiveness.\n\nMetrics to collect:\n- Detection rate: how many injection attempts are flagged\n- False positive rate: how many legitimate queries are incorrectly blocked\n- Bypass rate: can injection patterns evade the regex filters?",
+        "content": "=== ATTACK VECTOR: LLM01 Direct Prompt Injection ===\n\nGUARDRAIL VARIANT\n\nAdded protections:\n1. Code node: Injection pattern detection (keyword/regex matching)\n2. IF node: Routes blocked inputs away from the AI Agent\n3. Set node: Returns a canned \"I cannot process that request.\" response\n\nCompare results with wf_rs_01.json to measure guardrail effectiveness.\n\nMetrics to collect:\n- Detection rate: how many injection attempts are flagged\n- False positive rate: how many legitimate queries are incorrectly blocked\n- Bypass rate: can injection patterns evade the regex filters?",
         "height": 300,
         "width": 450
       }
@@ -234,9 +234,9 @@
         250,
         300
       ],
-      "webhookId": "wf-01-guardrail",
+      "webhookId": "wf-rs-01-guardrail",
       "parameters": {
-        "path": "wf-01-guardrail",
+        "path": "wf-rs-01-guardrail",
         "options": {},
         "responseMode": "responseNode",
         "responseData": "allEntries",
