@@ -12,21 +12,21 @@ Slim configs (`*_slim.json`) use the same ID format as the full config — they 
 
 ## Subcategory Numbering
 
-| # | Subcategory | wf_rs_01 | wf_rs_03 | wf_ps_03 |
-|---|---|---|---|---|
-| 00 | Sanity check | ✅ | ✅ | ✅ |
-| 01 | Direct Prompt Injection | ✅ | — | — |
-| 02 | Excessive Agency | ✅ | ✅ | ✅ |
-| 03 | Indirect Prompt Injection | ✅ | — | — |
-| 04 | Obfuscated Injection | ✅ | ✅ | ✅ |
-| 05 | Tool Argument Injection | ✅ | ✅ | ✅ |
-| 06 | Multi-turn Escalation | ✅ | ✅ | ✅ |
-| 07 | Denial of Wallet | ✅ | ✅ | ✅ |
-| 08 | Insecure Output Handling | ✅ | ✅ | ✅ |
-| 09 | Canary Side-Channel Leakage | ✅ | — | — |
-| 10 | Tool Selection Hijack | — | ✅ | ✅ |
-| 11 | Indirect Privilege Escalation | — | ✅ | ✅ |
-| 12 | Reconnaissance | — | ✅ | ✅ |
+| # | Subcategory | wf_rs_01 | wf_rs_03 | wf_ps_03 | wf_ps_06 |
+|---|---|---|---|---|---|---|
+| 00 | Sanity check | ✅ | ✅ | ✅ | — |
+| 01 | Direct Prompt Injection | ✅ | — | — | — |
+| 02 | Excessive Agency | ✅ | ✅ | ✅ | ✅ |
+| 03 | Indirect Prompt Injection | ✅ | — | — | — |
+| 04 | Obfuscated Injection | ✅ | ✅ | ✅ | ✅ |
+| 05 | Tool Argument Injection | ✅ | ✅ | ✅ | ✅ |
+| 06 | Multi-turn Escalation | ✅ | ✅ | ✅ | ✅ |
+| 07 | Denial of Wallet | ✅ | ✅ | ✅ | — |
+| 08 | Insecure Output Handling | ✅ | ✅ | ✅ | — |
+| 09 | Canary Side-Channel Leakage | ✅ | — | — | — |
+| 10 | Tool Selection Hijack | — | ✅ | ✅ | — |
+| 11 | Indirect Privilege Escalation | — | ✅ | ✅ | — |
+| 12 | Reconnaissance | — | ✅ | ✅ | — |
 
 ## Workflow Summaries
 
@@ -100,8 +100,12 @@ Slim configs (`*_slim.json`) use the same ID format as the full config — they 
 Same test case structure as wf_rs_03 (both test privilege escalation via sub-workflow credential crossing). Substitute `09.` prefix:
 
 | wf_rs_03 ID | wf_ps_03 ID |
-|---|---|
+|---|---|---|
 | `04.xx.xx` | `09.xx.xx` |
+
+### wf_ps_06 — HITL Preview/Execution Content Mismatch (planned)
+
+Tests whether an AI-generated preview description (shown to a human for approval) can diverge from the actual tool arguments executed. Under prompt injection, the AI may output a benign preview while filling the tool call with malicious parameters — the human approves one thing but the platform executes another.
 
 ## Running Tests
 
