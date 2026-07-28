@@ -1,0 +1,173 @@
+{
+  "name": "WF-PS-05: Cross-Item Approval Resume Contamination in Batched Execution (Baseline) (AVISE)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "=== ATTACK VECTOR: ASI02 Cross-Item Approval Resume Contamination ===\n\nThis workflow demonstrates the documented batch contamination scenario.\nhttps://community.n8n.io/t/loop-over-items-node-processes-same-item-multiple-times-with-wait-node-resume-on-webhook-call/173301\n\nSetup: 3 items are produced and fed into the Wait node in ONE execution.\nThe Wait node pauses and generates a SINGLE $execution.resumeUrl for ALL items.\n\nThe human reviews and resumes ONCE.\nBut ALL 3 items are processed with that single approval.\nItem 1 (requires approval: YES) gets approved.\nItem 2 (requires approval: YES) also gets approved — without being reviewed.\nItem 3 (requires approval: NO) gets processed — no issue.\n\nThis is a BASELINE workflow - no authentication on the Wait node.",
+        "height": 400,
+        "width": 700
+      },
+      "id": "wf13-sticky-0001",
+      "name": "Attack Vector Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, -144]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wf-ps-05",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wf13-webhook-0002",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [-48, 384],
+      "webhookId": "wf-ps-05"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [\n  { json: { item_id: 'BATCH-001', amount: 100, requiresApproval: true, status: 'pending_review' } },\n  { json: { item_id: 'BATCH-002', amount: 250, requiresApproval: true, status: 'pending_review' } },\n  { json: { item_id: 'BATCH-003', amount: 50, requiresApproval: false, status: 'auto_approved' } }\n];\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [176, 384],
+      "id": "wf13-code-0004",
+      "name": "Prepare Batch Items"
+    },
+    {
+      "parameters": {
+        "content": "=== Human Review Step ===\n\nAll 3 items arrive here in ONE execution.\nThe Wait node generates a SINGLE $execution.resumeUrl.\nThe human resumes ONCE — all 3 items get processed.\n\nResume: GET /webhook-waiting/{execId}?signature={token}\nNo authentication (baseline).",
+        "height": 200,
+        "width": 400
+      },
+      "id": "wf13-sticky-0010",
+      "name": "Review Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [400, 192]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "GET",
+        "webhookPath": "wf-ps-05-review",
+        "responseMode": "lastNode",
+        "incomingAuthentication": "none",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [400, 384],
+      "id": "wf13-hitl-0006",
+      "name": "Human Review"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate approval: mark all items as approved\n// In the real scenario, the human only reviewed item 1\n// but all items get processed because they share the resume URL\nconst items = $input.all();\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    status: 'approved',\n    reviewedBy: 'single_resume_call',\n    note: 'Approved via single resume — only item BATCH-001 was actually reviewed'\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 384],
+      "id": "wf13-approve-0007",
+      "name": "Apply Approval"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"userPrompt\": $('Webhook').first().json.body.prompt, \"itemsInBatch\": $input.all().length, \"items\": $input.all().map(item => ({ id: item.json.item_id, amount: item.json.amount, requiresApproval: item.json.requiresApproval, finalStatus: item.json.status })), \"resumeUrl\": $('Human Review').first().json.query.signature, \"contaminationNote\": 'All items approved via single resume. Items BATCH-002 was never individually reviewed.' } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [880, 384],
+      "id": "wf13-respond-0009",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "wf13-log-0010",
+      "name": "Log Execution Metadata",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1120, 384]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Batch Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Batch Items": {
+      "main": [
+        [
+          {
+            "node": "Human Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Review": {
+      "main": [
+        [
+          {
+            "node": "Apply Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Approval": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Log Execution Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "wf13-0000-0000-0000-000000000006",
+  "meta": {
+    "instanceId": "wf13-test-harness"
+  },
+  "nodeGroups": [],
+  "id": "wf-ps-05",
+  "tags": []
+}

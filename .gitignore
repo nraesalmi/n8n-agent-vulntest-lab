@@ -44,3 +44,6 @@ __pycache__/
 # AVISE evaluation results
 
 avise-reports/*
+
+# docs
+docs/

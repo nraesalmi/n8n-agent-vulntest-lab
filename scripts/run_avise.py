@@ -50,7 +50,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 VARIANTS = ["baseline", "guardrail"]
-WORKFLOWS = ["wf_rs_01", "wf_rs_03", "wf_ps_03"]
+WORKFLOWS = ["wf_rs_01", "wf_rs_02", "wf_rs_03", "wf_rs_04", "wf_rs_05", "wf_rs_06",
+              "wf_ps_01", "wf_ps_02", "wf_ps_03", "wf_ps_04", "wf_ps_05", "wf_ps_06",
+              "wf_cc_01"]
 CONFIG_DIR = PROJECT_ROOT / "n8n_avise_ext" / "configs"
 CONNECTOR_DIR = CONFIG_DIR / "connector"
 SET_DIR = CONFIG_DIR / "SET"

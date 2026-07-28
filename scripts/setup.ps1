@@ -103,6 +103,7 @@ $workflowDirs = @(
     "/tmp/workflows/reasoning/baseline",
     "/tmp/workflows/reasoning/basic_guardrail",
     "/tmp/workflows/platform/baseline",
+    "/tmp/workflows/chained/baseline",
     "/tmp/workflows/subworkflows/SW-CRM-ReadOnly",
     "/tmp/workflows/subworkflows/SW-Finance-Admin"
 )

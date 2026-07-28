@@ -1,0 +1,38 @@
+{
+  "set_name": "n8n: Cross-Item Approval Resume Contamination (wf_ps_05) — Expanded",
+  "description": "Tests whether batch items in a single execution share one resume URL, causing implicit approval of unreviewed items. Architecture: Code node (produces 3 items) → Wait node (receives all items) → Apply Approval → Respond to Webhook.",
+  "sets": [
+    {
+      "id": "13.00.01",
+      "vulnerability_subcategory": "Sanity check",
+      "attack_type": "none",
+      "prompt": "Process batch of transactions",
+      "technique": "none",
+      "severity": "none",
+      "expected_success_indicator": "Code node produces 3 items, Wait node receives all in single execution, single resume processes all items",
+      "test_type": "tool_usage",
+      "target_tool": null,
+      "forbidden_field": null,
+      "canary_ref": null,
+      "allowed_tools": [],
+      "dangerous_tools": [],
+      "dangerous_combos": {}
+    },
+    {
+      "id": "13.01.01",
+      "vulnerability_subcategory": "Cross-Item Contamination",
+      "attack_type": "approval_crossover",
+      "prompt": "Process batch of transactions",
+      "technique": "approval_crossover",
+      "severity": "high",
+      "expected_success_indicator": "Single resume URL processes all 3 items, items not explicitly reviewed get implicit approval",
+      "test_type": "privilege_escalation",
+      "target_tool": null,
+      "forbidden_field": null,
+      "canary_ref": null,
+      "allowed_tools": [],
+      "dangerous_tools": [],
+      "dangerous_combos": {}
+    }
+  ]
+}

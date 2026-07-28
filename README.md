@@ -2,7 +2,7 @@
 
 **Security of low-code AI agent workflow platforms under prompt-injection and execution-graph manipulation**
 
-A controlled experimental framework for studying how prompt-injection-class attacks and platform-specific execution vulnerabilities propagate through node-based AI workflow systems (n8n), where LLM outputs are compiled into executable workflow graphs with external side effects. Contains **10 attack scenarios** (baseline / basic-guardrail / custom-guardrail variants) and **1 reusable security sub-workflow scaffold**, mapped against both the OWASP Top 10 for LLM Applications and the OWASP Top 10 for Agentic Applications.
+A controlled experimental framework for studying how prompt-injection-class attacks and platform-specific execution vulnerabilities propagate through node-based AI workflow systems (n8n), where LLM outputs are compiled into executable workflow graphs with external side effects. Contains **13 attack scenarios** (baseline / basic-guardrail / custom-guardrail variants) and **2 reusable security sub-workflow scaffolds**, mapped against both the OWASP Top 10 for LLM Applications and the OWASP Top 10 for Agentic Applications.
 
 
 <img width="1280" height="640" alt="n8n-lab-banner" src="https://github.com/user-attachments/assets/fd0c164e-00c1-443c-aad6-3c5fd3330a3a" />
@@ -59,9 +59,9 @@ single-entry category rather than forced into one suite.
 
 | # | Scenario | Primary OWASP Category | Notes |
 |---|---|---|---|
-| **wf_rs_01** | Direct Prompt Injection (baseline) | LLM01 | Calibration control — every other result is interpreted relative to this |
+| **wf_rs_01** ✓ | Direct Prompt Injection (baseline) | LLM01 | Calibration control — every other result is interpreted relative to this |
 | **wf_rs_02** | Indirect Injection, multi-channel | LLM01 | Variants: web content, database row, email body |
-| **wf_rs_03** | Excessive Agency / Tool Hijack + Guardrail Bypass | ASI02 | Includes a tool-equivalence bypass test against the native Guardrails node's own human-review gate |
+| **wf_rs_03** ✓ | Excessive Agency / Tool Hijack + Guardrail Bypass | ASI02 | Includes a tool-equivalence bypass test against the native Guardrails node's own human-review gate |
 | **wf_rs_04** | System Prompt Extraction | LLM07 | Architecture-agnostic; comparison point against published LangChain/chatbot benchmark numbers |
 | **wf_rs_05** | Memory and Context Poisoning | ASI06 | Variants: session/buffer memory, vector store retrieval memory |
 | **wf_rs_06** | Unbounded Consumption / Agent Loop | LLM10 | Architecture-agnostic; impact framing (billed API/execution cost) is n8n-relevant |
@@ -79,7 +79,7 @@ node.
 |---|---|---|---|---|
 | **wf_ps_01** | Insecure Output Handling: Code/Expression Injection | LLM02 | AI-populated value | Contrasts generic "LLM output reaches a Code node" against n8n's second-order `=`-prefix expression re-evaluation pattern; pre/post-patch version boundary test against CVE-2025-68613 family |
 | **wf_ps_02** | Credential Exfiltration via SSRF-chained `$fromAI()` | LLM02 / ASI02 | AI-populated value | Tests whether n8n's credential-conditional SSRF protection holds when an AI-populated URL parameter is the delivery mechanism |
-| **wf_ps_03** | Agent Identity & Privilege Abuse via Sub-workflow Credential Crossing | ASI03 | AI-populated value | Tests whether injected context can redirect an AI-populated `Execute Sub-workflow` target to a more privileged workflow |
+| **wf_ps_03** ✓ | Agent Identity & Privilege Abuse via Sub-workflow Credential Crossing | ASI03 | AI-populated value | Tests whether injected context can redirect an AI-populated `Execute Sub-workflow` target to a more privileged workflow |
 | **wf_ps_04**  *(verify)* | Human-Review Gate Bypass via Unauthenticated Resume Webhook | ASI01  | None — no AI involvement | Pure control-plane bypass; auth-configuration variants (None/Basic/Header/JWT) rather than payload tiers |
 | **wf_ps_05**  *(verify)* | Cross-Item Approval Resume Contamination in Batched Execution | ASI02  | None — no AI involvement required to demonstrate; paired with an injected second item for security-consequence framing | Deterministic pass/fail per batch-size configuration, not a trial-based success rate |
 | **wf_ps_06**  *(verify)* | HITL Preview/Execution Content Mismatch | ASI01 | AI-populated value | AI generates a preview description for the human approval dialog, then executes the tool call in the same turn — an injection can make the preview benign while the actual tool arguments are malicious; tests whether preview-bound and execution-bound outputs can diverge |
@@ -106,6 +106,7 @@ outputs are interpreted as **structured execution instructions** rather than
 natural language responses (Reasoning Suite, RQ1) — and separately, whether an
 application-layer enforcement mechanism can reach failures that occur entirely
 within n8n's platform layer at all (Platform Suite, RQ2).
+
 ---
 
 ## Architecture
@@ -390,17 +391,17 @@ ls avise-reports/
 ├── n8n/
 │   └── workflows/
 │       ├── README.md               # Per-scenario documentation, incl. channel/backend variant matrix
-│       ├── test_payloads.json      # Tiered attack payloads across 10 scenarios
+│       ├── test_payloads.json      # Tiered attack payloads across 13 scenarios
 │       ├── reasoning/
-│       │   ├── baseline/           # Unprotected reasoning-layer workflows (wf_rs_01, wf_rs_03, …)
+│       │   ├── baseline/           # Unprotected reasoning-layer workflows (wf_rs_01, wf_rs_02, wf_rs_03, wf_rs_04, wf_rs_05, wf_rs_06)
 │       │   ├── basic_guardrail/    # n8n built-in guardrail variants (wf_rs_01_guardrail)
 │       │   └── custom_guardrail/   # Reusable security sub-workflow scaffold
 │       ├── platform/
-│       │   ├── baseline/           # Unprotected platform-layer workflows (wf_ps_03, …)
+│       │   ├── baseline/           # Unprotected platform-layer workflows (wf_ps_01, wf_ps_02, wf_ps_03, wf_ps_04, wf_ps_05, wf_ps_06)
 │       │   ├── basic_guardrail/    # Reserved
 │       │   └── custom_guardrail/   # Reserved
 │       ├── chained/
-│       │   ├── baseline/           # Reserved
+│       │   ├── baseline/           # Composite kill chain (wf_cc_01)
 │       │   ├── basic_guardrail/    # Reserved
 │       │   └── custom_guardrail/   # Reserved
 │       └── subworkflows/
