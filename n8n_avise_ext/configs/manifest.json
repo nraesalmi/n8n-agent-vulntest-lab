@@ -18,6 +18,10 @@
   ],
   "variants": [
     "baseline",
-    "guardrail"
+    "guardrail",
+    "auth_baseline",
+    "auth_basic",
+    "auth_header",
+    "auth_jwt"
   ]
 }

@@ -139,7 +139,7 @@ echo "   Credentials imported."
 echo ""
 echo "9. Importing workflows from subdirectories..."
 
-for dir in reasoning/baseline reasoning/basic_guardrail platform/baseline chained/baseline subworkflows/SW-CRM-ReadOnly subworkflows/SW-Finance-Admin; do
+for dir in reasoning/wf_rs_01 reasoning/wf_rs_02 reasoning/wf_rs_03 reasoning/wf_rs_04 reasoning/wf_rs_05 reasoning/wf_rs_06 platform/wf_ps_01 platform/wf_ps_02 platform/wf_ps_03 platform/wf_ps_04 platform/wf_ps_05 platform/wf_ps_06 chained/wf_cc_01 subworkflows/SW-CRM-ReadOnly subworkflows/SW-Finance-Admin; do
   if docker exec n8n-app sh -c "[ -d /tmp/workflows/$dir ]"; then
     docker exec n8n-app n8n import:workflow --separate --input="/tmp/workflows/$dir" --userId "$USER_ID"
     echo "   Imported: $dir"

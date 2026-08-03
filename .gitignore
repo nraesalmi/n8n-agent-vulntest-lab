@@ -32,6 +32,7 @@ research/experiments/*.md
 # Model files (never commit)
 models/
 CLAUDE.md
+.claude/
 
 # Http cookie files
 cookiejar.txt

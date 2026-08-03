@@ -100,10 +100,19 @@ Write-Host ""
 Write-Host "5. Importing workflows..."
 
 $workflowDirs = @(
-    "/tmp/workflows/reasoning/baseline",
-    "/tmp/workflows/reasoning/basic_guardrail",
-    "/tmp/workflows/platform/baseline",
-    "/tmp/workflows/chained/baseline",
+    "/tmp/workflows/reasoning/wf_rs_01",
+    "/tmp/workflows/reasoning/wf_rs_02",
+    "/tmp/workflows/reasoning/wf_rs_03",
+    "/tmp/workflows/reasoning/wf_rs_04",
+    "/tmp/workflows/reasoning/wf_rs_05",
+    "/tmp/workflows/reasoning/wf_rs_06",
+    "/tmp/workflows/platform/wf_ps_01",
+    "/tmp/workflows/platform/wf_ps_02",
+    "/tmp/workflows/platform/wf_ps_03",
+    "/tmp/workflows/platform/wf_ps_04",
+    "/tmp/workflows/platform/wf_ps_05",
+    "/tmp/workflows/platform/wf_ps_06",
+    "/tmp/workflows/chained/wf_cc_01",
     "/tmp/workflows/subworkflows/SW-CRM-ReadOnly",
     "/tmp/workflows/subworkflows/SW-Finance-Admin"
 )

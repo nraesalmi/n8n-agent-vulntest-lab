@@ -1,0 +1,13 @@
+{
+  "target_model": {
+    "connector": "n8n-webhook-lm",
+    "type": "language_model",
+    "name": "wf_ps_04 (auth_jwt)",
+    "webhook_url": "http://localhost:5678/webhook/wf-ps-04-auth-jwt",
+    "method": "POST",
+    "input_field": "prompt",
+    "response_field": "output",
+    "tool_calls_field": "tool_calls",
+    "timeout": 120
+  }
+}

@@ -5,9 +5,9 @@ Implemented workflows (testing in progress):
 
 | # | Scenario | Layer | Baseline | Guardrail | Webhook Path |
 |---|----------|-------|----------|-----------|---------|
-| wf_rs_01 | Direct Prompt Injection | Reasoning | `reasoning/baseline/wf_rs_01.json` | `reasoning/basic_guardrail/wf_rs_01_guardrail.json` | `/webhook/wf-rs-01-baseline` |
-| wf_rs_03 | Excessive Agency / Tool Hijack | Reasoning | `reasoning/baseline/wf_rs_03.json` | — | `/webhook/wf-rs-03` |
-| wf_ps_03 | Privilege Abuse via Sub-workflow Credential Crossing | Platform | `platform/baseline/wf_ps_03.json` | — | `/webhook/wf-pl-03` |
+| wf_rs_01 | Direct Prompt Injection | Reasoning | `reasoning/wf_rs_01/baseline.json` | `reasoning/wf_rs_01/basic_guardrail.json` | `/webhook/wf-rs-01-baseline` |
+| wf_rs_03 | Excessive Agency / Tool Hijack | Reasoning | `reasoning/wf_rs_03/baseline.json` | — | `/webhook/wf-rs-03` |
+| wf_ps_03 | Privilege Abuse via Sub-workflow Credential Crossing | Platform | `platform/wf_ps_03/baseline.json` | — | `/webhook/wf-ps-03` |
 
 ### Custom Security Node
 

@@ -393,17 +393,21 @@ ls avise-reports/
 │       ├── README.md               # Per-scenario documentation, incl. channel/backend variant matrix
 │       ├── test_payloads.json      # Tiered attack payloads across 13 scenarios
 │       ├── reasoning/
-│       │   ├── baseline/           # Unprotected reasoning-layer workflows (wf_rs_01, wf_rs_02, wf_rs_03, wf_rs_04, wf_rs_05, wf_rs_06)
-│       │   ├── basic_guardrail/    # n8n built-in guardrail variants (wf_rs_01_guardrail)
-│       │   └── custom_guardrail/   # Reusable security sub-workflow scaffold
+│       │   ├── wf_rs_01/           # Direct Prompt Injection (baseline, basic_guardrail)
+│       │   ├── wf_rs_02/           # Indirect Injection, Multi-Channel (baseline)
+│       │   ├── wf_rs_03/           # Excessive Agency / Tool Hijack (baseline)
+│       │   ├── wf_rs_04/           # System Prompt Extraction (baseline)
+│       │   ├── wf_rs_05/           # Memory and Context Poisoning (baseline)
+│       │   └── wf_rs_06/           # Unbounded Consumption / Agent Loop (baseline)
 │       ├── platform/
-│       │   ├── baseline/           # Unprotected platform-layer workflows (wf_ps_01, wf_ps_02, wf_ps_03, wf_ps_04, wf_ps_05, wf_ps_06)
-│       │   ├── basic_guardrail/    # Reserved
-│       │   └── custom_guardrail/   # Reserved
+│       │   ├── wf_ps_01/           # Insecure Output Handling / Expression Injection (baseline)
+│       │   ├── wf_ps_02/           # Credential Exfiltration via SSRF (baseline)
+│       │   ├── wf_ps_03/           # Agent Identity & Privilege Abuse (baseline)
+│       │   ├── wf_ps_04/           # Human-Review Gate Bypass (baseline, auth_basic, auth_header, auth_jwt)
+│       │   ├── wf_ps_05/           # Cross-Item Approval Resume Contamination (baseline)
+│       │   └── wf_ps_06/           # HITL Preview/Execution Content Mismatch (baseline)
 │       ├── chained/
-│       │   ├── baseline/           # Composite kill chain (wf_cc_01)
-│       │   ├── basic_guardrail/    # Reserved
-│       │   └── custom_guardrail/   # Reserved
+│       │   └── wf_cc_01/           # Composite Kill Chain (baseline)
 │       └── subworkflows/
 │           ├── SW-CRM-ReadOnly/    # Low-privilege sub-workflow
 │           └── SW-Finance-Admin/   # High-privilege sub-workflow
